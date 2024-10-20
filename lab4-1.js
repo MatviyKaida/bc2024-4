@@ -15,7 +15,7 @@ program
         const port = options.port;
         const cache = options.cache;
         
-        const server = http.createServer(async (req, res) => {
+        const server = http.createServer((req, res) => {
             const code = req.url.slice(1)
             const filePath = path.join(cache, `${code}.jpg`);
             if (req.method === 'GET') {
@@ -36,11 +36,18 @@ program
                                     res.end('404 Not Found');
                                 })
                             })
-                           
                     }
             }
             else if (req.method === 'PUT'){
-
+                superagent.get(`https://http.cat/${code}`)
+                    .then((response) => {
+                        const image = response.body;
+                        fs.promises.writeFile(filePath, image)
+                        .then((response) => {
+                            res.writeHead(201, { 'Content-Type': 'image/jpeg' });
+                            res.end('Created')
+                        })
+                    })
             }
 
         });
