@@ -43,11 +43,22 @@ program
                     .then((response) => {
                         const image = response.body;
                         fs.promises.writeFile(filePath, image)
-                        .then((response) => {
+                        .then(() => {
                             res.writeHead(201, { 'Content-Type': 'image/jpeg' });
                             res.end('Created')
                         })
                     })
+            }
+            else if(req.method === 'DELETE'){
+                if(existsSync(`cacheDir/${code}.jpg`)){
+                fs.promises.rm(`cacheDir/${code}.jpg`)
+                    res.writeHead(200)
+                    res.end()
+                
+            }
+            else {
+                res.end()
+            }
             }
 
         });
