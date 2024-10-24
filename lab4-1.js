@@ -65,6 +65,7 @@ program
                 
             }
             else {
+                res.writeHead(405)
                 res.end()
             }
             }
