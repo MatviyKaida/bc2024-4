@@ -32,8 +32,10 @@ program
                                 const image = response.body;
                                 fs.promises.writeFile(filePath, image)
                                 .then(()=>{
-                                    res.writeHead(404, { 'Content-Type': 'text/plain' });
-                                    res.end('404 Not Found');
+                                    res.writeHead(200, { 'Content-Type': 'image/jpeg' });
+                                    res.end(image);
+                                    //res.writeHead(404, { 'Content-Type': 'text/plain' });
+                                    //res.end('404 Not Found');
                                 })
                             })
                     }
