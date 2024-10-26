@@ -18,10 +18,10 @@ program
             fs.promises.mkdir(cache);
         }
         const server = http.createServer((req, res) => {
-            const code = req.url.slice(1)
+            const code = req.url
             const filePath = path.join(cache, `${code}.jpg`);
             if (req.method === 'GET') {
-                if(existsSync(`${cache}/${code}.jpg`)){
+                if(existsSync(`${cache, code}.jpg`)){
                 fs.promises.readFile(filePath)
                     .then((image) => {
                         res.writeHead(200, { 'Content-Type': 'image/jpeg' });
@@ -47,27 +47,21 @@ program
                 
             }
             else if (req.method === 'PUT'){
-                superagent.get(`https://http.cat/${code}`)
-                    .then((response) => {
-                        const image = response.body;
-                        fs.promises.writeFile(filePath, image)
-                        .then(() => {
-                            res.writeHead(201, { 'Content-Type': 'image/jpeg' });
-                            res.end('\nCreated')
-                        })
+                let body = [];
+                req.on('data', chunk => body.push(chunk));
+                req.on('end', () => {
+                const filePath1 = cache + req.url + ".jpg";
+                const buffer = Buffer.concat(body);
+                fs.promises.writeFile(filePath1, buffer)
+                    .then(() => {
+                        res.writeHead(201);
+                        res.end();
                     })
-            }
-            else if(req.method === 'DELETE'){
-                if(existsSync(`${cache}/${code}.jpg`)){
-                fs.promises.rm(`${cache}/${code}.jpg`)
-                    res.writeHead(200)
-                    res.end()
-                
-            }
-            else {
-                res.writeHead(405)
-                res.end()
-            }
+                    .catch(error => {
+                        res.writeHead(404);
+                        res.end();
+                    });
+                })
             }
 
         });
