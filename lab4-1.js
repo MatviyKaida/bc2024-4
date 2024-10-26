@@ -17,11 +17,13 @@ program
         if(!existsSync(cache)){
             fs.promises.mkdir(cache);
         }
+
         const server = http.createServer((req, res) => {
             const code = req.url
             const filePath = path.join(cache, `${code}.jpg`);
+            console.log(filePath)
             if (req.method === 'GET') {
-                if(existsSync(`${cache, code}.jpg`)){
+                if(existsSync(filePath)){
                 fs.promises.readFile(filePath)
                     .then((image) => {
                         res.writeHead(200, { 'Content-Type': 'image/jpeg' });
@@ -48,25 +50,34 @@ program
             }
             else if (req.method === 'PUT'){
                 let body = [];
-                req.on('data', chunk => body.push(chunk));
+                req.on('data', chunk => {body.push(chunk)});
                 req.on('end', () => {
-                const filePath1 = cache + req.url + ".jpg";
-                const buffer = Buffer.concat(body);
-                fs.promises.writeFile(filePath1, buffer)
-                    .then(() => {
-                        res.writeHead(201);
-                        res.end();
-                    })
-                    .catch(error => {
-                        res.writeHead(404);
-                        res.end();
+                    const buffer = Buffer.concat(body);
+                    fs.promises.writeFile(path.join(cache, `${req.url}.jpg`), buffer)
+                        .then(() => {
+                            res.writeHead(201);
+                            res.end();
+                        })
+                        .catch(error => {
+                            res.writeHead(404);
+                            res.end();
+                        });
                     });
-                })
             }
-
-        });
-        server.listen(port, host)
+            else if(req.method === 'DELETE'){
+                fs.promises.rm(`${cache}${code}.jpg`);
+                res.writeHead(200);
+                res.end();
+            }
+            else {
+                res.writeHead(405)
+                res.end()
+            }
+        
+        
     });
+    server.listen(port, host)
+});
     
 program.parse();
 
